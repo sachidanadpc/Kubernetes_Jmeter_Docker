@@ -9,8 +9,8 @@ fi
 # Install prerequisite packages
 sudo yum install -y yum-utils device-mapper-persistent-data lvm2
 
-# Add Docker repository
-sudo yum-config-manager --add-repo https://download.docker.com/linux/amazon/docker-ce.repo
+# Add Docker repository for Amazon Linux
+sudo amazon-linux-extras install docker
 
 # Install Docker packages
 echo "Installing Docker..."
