@@ -14,19 +14,19 @@ ENV JMETER_PLUGINS_FOLDER ${JMETER_HOME}/lib/ext/
 #Time Zone https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 ENV TIMEZONE Asia/Kolkata
 
-RUN yum update -y \
-    && yum install -y ca-certificates java-1.8.0-openjdk java-1.8.0-openjdk-devel tzdata curl unzip bash \
-    && ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
-    && echo ${TIMEZONE} > /etc/timezone \
-    && yum clean all \
-    && rm -rf /var/cache/yum \
-    && mkdir -p /tmp/dependencies \
-    && curl -L ${JMETER_DOWNLOAD_URL} > /tmp/dependencies/apache-jmeter-${JMETER_VERSION}.tgz \
-    && mkdir -p /opt \
-    && tar -xzf /tmp/dependencies/apache-jmeter-${JMETER_VERSION}.tgz -C /opt \
-    && rm -rf /tmp/dependencies \
-    && curl -L ${JMETER_PLUGINS_DOWNLOAD_URL}/cmdrunner/2.2/cmdrunner-2.2.jar -o ${JMETER_HOME}/lib/cmdrunner-2.2.jar \
-    && curl -L ${JMETER_PLUGINS_DOWNLOAD_URL}/jmeter-plugins-manager/1.4/jmeter-plugins-manager-1.4.jar -o ${JMETER_PLUGINS_FOLDER}/jmeter-plugins-manager-1.4.jar
+# Install required packages
+RUN yum -y update && \
+    yum -y install ca-certificates java-1.8.0-openjdk java-1.8.0-openjdk-devel tzdata curl unzip bash && \
+    ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
+    yum clean all && \
+    rm -rf /var/cache/yum && \
+    mkdir -p /tmp/dependencies && \
+    curl -L ${JMETER_DOWNLOAD_URL} > /tmp/dependencies/apache-jmeter-${JMETER_VERSION}.tgz && \
+    mkdir -p /opt && \
+    tar -xzf /tmp/dependencies/apache-jmeter-${JMETER_VERSION}.tgz -C /opt && \
+    rm -rf /tmp/dependencies && \
+    curl -L ${JMETER_PLUGINS_DOWNLOAD_URL}/cmdrunner/2.2/cmdrunner-2.2.jar -o ${JMETER_HOME}/lib/cmdrunner-2.2.jar && \
+    curl -L ${JMETER_PLUGINS_DOWNLOAD_URL}/jmeter-plugins-manager/1.4/jmeter-plugins-manager-1.4.jar -o ${JMETER_PLUGINS_FOLDER}/jmeter-plugins-manager-1.4.jar
 
 ENV PATH $PATH:$JMETER_BIN
 
