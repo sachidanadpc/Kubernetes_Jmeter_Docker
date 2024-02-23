@@ -6,6 +6,9 @@ ENV JMETER_VERSION 5.4.1
 ENV JMETER_HOME /opt/apache-jmeter-${JMETER_VERSION}
 ENV PATH ${JMETER_HOME}/bin:$PATH
 
+# Set JMeter version
+ARG JMETER_VERSION=5.4.1
+
 # Install necessary packages
 RUN yum update -y && \
     yum install -y java-11-amazon-corretto-devel wget ca-certificates && \
