@@ -7,7 +7,7 @@ ENV JMETER_HOME /opt/apache-jmeter-${JMETER_VERSION}
 ENV PATH ${JMETER_HOME}/bin:$PATH
 
 # Install necessary packages
-yum update -y && \
+RUN yum update -y && \
     yum install -y java-11-amazon-corretto-devel wget ca-certificates && \
     yum clean all
 
