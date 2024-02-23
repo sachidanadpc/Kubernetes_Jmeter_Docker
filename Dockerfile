@@ -7,8 +7,9 @@ ENV JMETER_HOME /opt/apache-jmeter-${JMETER_VERSION}
 ENV PATH ${JMETER_HOME}/bin:$PATH
 
 # Install necessary packages
-RUN apk --update add openjdk11-jre wget ca-certificates && \
-    rm -rf /var/cache/apk/*
+RUN yum update -y && \
+    yum install -y java-11-openjdk wget ca-certificates && \
+    yum clean all
 
 # Download and install JMeter
 RUN wget -q https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz && \
