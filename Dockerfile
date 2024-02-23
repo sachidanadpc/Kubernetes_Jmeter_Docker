@@ -6,9 +6,7 @@ RUN yum update -y && \
 
 ARG JMETER_VERSION=5.4.1
 
-RUN curl -L https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz --output /opt/apache-jmeter-${JMETER_VERSION}.tgz \
-    && tar -xf /opt/apache-jmeter-${JMETER_VERSION}.tgz -C /opt \
-    && rm /opt/apache-jmeter-${JMETER_VERSION}.tgz
+RUN curl -L https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz | tar xz -C /opt
 
 ENV JMETER_HOME /opt/apache-jmeter-${JMETER_VERSION}
 ENV PATH $JMETER_HOME/bin:$PATH
