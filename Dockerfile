@@ -1,5 +1,5 @@
 # Use Alpine Linux as base image
-FROM alpine:latest
+FROM amazonlinux:2
 
 # Set environment variables
 ENV JMETER_VERSION 5.4.1
