@@ -7,7 +7,7 @@ RUN yum update -y && \
     yum clean all
 
 # Set JMeter version as a build argument
-ARG JMETER_VERSION=5.4.1
+ARG JMETER_VERSION=5.6.3
 
 # Download and extract Apache JMeter using curl and tar
 RUN curl -L https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz | tar xz -C /opt
