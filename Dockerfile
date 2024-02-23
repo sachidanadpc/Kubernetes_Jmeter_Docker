@@ -1,37 +1,25 @@
-#docker build -t jmeter:test .
-FROM alpine
-RUN apk add --no-cache --upgrade bash
+# Use Alpine Linux as base image
+FROM alpine:latest
 
-ARG JMETER_VERSION="5.3"
-
+# Set environment variables
+ENV JMETER_VERSION 5.4.1
 ENV JMETER_HOME /opt/apache-jmeter-${JMETER_VERSION}
-ENV JMETER_BIN  ${JMETER_HOME}/bin
-ENV MIRROR_HOST http://mirrors.ocf.berkeley.edu/apache/jmeter
-ENV JMETER_DOWNLOAD_URL ${MIRROR_HOST}/binaries/apache-jmeter-${JMETER_VERSION}.tgz
-ENV JMETER_PLUGINS_DOWNLOAD_URL https://repo1.maven.org/maven2/kg/apc
-ENV JMETER_PLUGINS_FOLDER ${JMETER_HOME}/lib/ext/
+ENV PATH ${JMETER_HOME}/bin:$PATH
 
-#Time Zone https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-ENV TIMEZONE Asia/Kolkata
+# Install necessary packages
+RUN apk --update add openjdk11-jre wget ca-certificates && \
+    rm -rf /var/cache/apk/*
 
-# Install required packages
-RUN yum -y update && \
-    yum -y install ca-certificates java-1.8.0-openjdk java-1.8.0-openjdk-devel tzdata curl unzip bash && \
-    ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
-    mkdir -p /tmp/dependencies && \
-    curl -L ${JMETER_DOWNLOAD_URL} > /tmp/dependencies/apache-jmeter-${JMETER_VERSION}.tgz && \
-    mkdir -p /opt && \
-    tar -xzf /tmp/dependencies/apache-jmeter-${JMETER_VERSION}.tgz -C /opt && \
-    rm -rf /tmp/dependencies && \
-    curl -L ${JMETER_PLUGINS_DOWNLOAD_URL}/cmdrunner/2.2/cmdrunner-2.2.jar -o ${JMETER_HOME}/lib/cmdrunner-2.2.jar && \
-    curl -L ${JMETER_PLUGINS_DOWNLOAD_URL}/jmeter-plugins-manager/1.4/jmeter-plugins-manager-1.4.jar -o ${JMETER_PLUGINS_FOLDER}/jmeter-plugins-manager-1.4.jar
+# Download and install JMeter
+RUN wget -q https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz && \
+    tar -xf apache-jmeter-${JMETER_VERSION}.tgz -C /opt && \
+    rm apache-jmeter-${JMETER_VERSION}.tgz
 
-ENV PATH $PATH:$JMETER_BIN
+# Set working directory
+WORKDIR ${JMETER_HOME}
 
-COPY ./launch.sh /
-RUN chmod +x /launch.sh
+# Expose JMeter ports
+EXPOSE 1099 60000
 
-ENTRYPOINT ["/launch.sh"]
-CMD ["-n -t /mnt/jmeter/script.jmx -l /mnt/jmeter/results/reslut-$(date +'%m_%d_%Y-%H_%M_%S_%N').jtl -j /mnt/jmeter/logs/master-log-$(date +'%m_%d_%Y-%H_%M_%S_%N').log"]
+# Set default command to run JMeter
+CMD ["jmeter", "--version"]
