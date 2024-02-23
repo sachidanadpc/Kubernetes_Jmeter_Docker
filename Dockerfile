@@ -12,9 +12,7 @@ RUN yum update -y && \
     yum clean all
 
 # Download and install JMeter
-RUN curl -L https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz --output /opt/apache-jmeter-${JMETER_VERSION}.tgz \
-    && tar -xf /opt/apache-jmeter-${JMETER_VERSION}.tgz -C /opt \
-    && rm /opt/apache-jmeter-${JMETER_VERSION}.tgz    
+RUN curl -L https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz | tar xz -C /opt
 
 # Set working directory
 WORKDIR ${JMETER_HOME}
