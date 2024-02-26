@@ -1,4 +1,3 @@
-
 # Use the official Amazon Linux 2 image as base
 FROM amazonlinux:2
 
@@ -10,10 +9,8 @@ RUN yum update -y && \
 # Set JMeter version as a build argument
 ARG JMETER_VERSION=5.4.1
 
-# Download Apache JMeter using wget
-RUN wget -q https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz -O /tmp/apache-jmeter-${JMETER_VERSION}.tgz \
-    && tar -xzf /tmp/apache-jmeter-${JMETER_VERSION}.tgz -C /opt \
-    && rm /tmp/apache-jmeter-${JMETER_VERSION}.tgz
+# Download and extract Apache JMeter using curl and tar
+RUN curl -L https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz | tar xz -C /opt
 
 # Set JAVA_HOME environment variable
 ENV JAVA_HOME /usr/lib/jvm/java-11-amazon-corretto
