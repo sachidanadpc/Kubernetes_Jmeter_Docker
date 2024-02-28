@@ -15,7 +15,7 @@ ENV CUSTOM_PLUGIN_URL=
 
 # Install the required tools for JMeter
 RUN apk add --update --no-cache \
-    curl \
+    curl tar gzip \
     openssh-client
 
 WORKDIR /opt
