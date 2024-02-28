@@ -1,5 +1,6 @@
 # Use the official Amazon Linux 2 image as base
-FROM amazonlinux:2
+# FROM amazonlinux:2
+FROM openjdk:8-alpine
 
 # Update package repositories and install necessary packages
 RUN yum update -y && \
