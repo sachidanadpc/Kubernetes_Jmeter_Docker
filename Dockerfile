@@ -1,46 +1,39 @@
-FROM openjdk:8-alpine
+#docker build -t jmeter:test .
+FROM alpine
+RUN apk add --no-cache --upgrade bash
 
-ENV JMETER_VERSION apache-jmeter-5.2
-ENV JMETER_HOME /opt/$JMETER_VERSION
-ENV PATH $PATH:$JMETER_HOME/bin
-ENV CMDRUNNER_VERSION 2.2
-ENV PLUGINMGR_VERSION 1.3
+ARG JMETER_VERSION="5.3"
 
-# overridable environment variables
-ENV RESULTS_LOG results.jtl
-ENV JMETER_FLAGS=
-ENV CUSTOM_PLUGIN_URL=
+ENV JMETER_HOME /opt/apache-jmeter-${JMETER_VERSION}
+ENV JMETER_BIN  ${JMETER_HOME}/bin
+ENV MIRROR_HOST http://mirrors.ocf.berkeley.edu/apache/jmeter
+ENV JMETER_DOWNLOAD_URL ${MIRROR_HOST}/binaries/apache-jmeter-${JMETER_VERSION}.tgz
+ENV JMETER_PLUGINS_DOWNLOAD_URL https://repo1.maven.org/maven2/kg/apc
+ENV JMETER_PLUGINS_FOLDER ${JMETER_HOME}/lib/ext/
 
-# Install the required tools for JMeter
-RUN apk add --update --no-cache \
-    curl tar gzip \
-    openssh-client
+#Time Zone https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+ENV TIMEZONE Asia/Kolkata
 
-WORKDIR /opt
+RUN    apk update \
+	&& apk upgrade \
+	&& apk add ca-certificates \
+	&& update-ca-certificates \
+            && apk add --update openjdk8-jre tzdata curl unzip bash \
+            && cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
+            && echo ${TIMEZONE} >  /etc/timezone \
+	&& rm -rf /var/cache/apk/* \
+	&& mkdir -p /tmp/dependencies  \
+	&& curl -L ${JMETER_DOWNLOAD_URL} >  /tmp/dependencies/apache-jmeter-${JMETER_VERSION}.tgz  \
+	&& mkdir -p /opt  \
+	&& tar -xzf /tmp/dependencies/apache-jmeter-${JMETER_VERSION}.tgz -C /opt  \
+	&& rm -rf /tmp/dependencies \
+	&& curl -L ${JMETER_PLUGINS_DOWNLOAD_URL}/cmdrunner/2.2/cmdrunner-2.2.jar -o ${JMETER_HOME}/lib/cmdrunner-2.2.jar \
+	&& curl -L ${JMETER_PLUGINS_DOWNLOAD_URL}/jmeter-plugins-manager/1.4/jmeter-plugins-manager-1.4.jar -o ${JMETER_PLUGINS_FOLDER}/jmeter-plugins-manager-1.4.jar
 
-# install JMeter and the JMeter Plugins Manager
-RUN curl -O https://archive.apache.org/dist/jmeter/binaries/$JMETER_VERSION.tgz \
-  && tar -xvf $JMETER_VERSION.tgz \
-  && rm $JMETER_VERSION.tgz \
-  && rm -rf $JMETER_VERSION/docs $JMETER_VERSION/printable_docs \
-  && cd $JMETER_HOME/lib \
-  && curl -OL http://search.maven.org/remotecontent?filepath=kg/apc/cmdrunner/$CMDRUNNER_VERSION/cmdrunner-$CMDRUNNER_VERSION.jar \
-  && cd $JMETER_HOME/lib/ext \
-  && curl -OL4 http://search.maven.org/remotecontent?filepath=kg/apc/jmeter-plugins-manager/$PLUGINMGR_VERSION/jmeter-plugins-manager-$PLUGINMGR_VERSION.jar \
-  && java -cp jmeter-plugins-manager-$PLUGINMGR_VERSION.jar org.jmeterplugins.repository.PluginManagerCMDInstaller
+ENV PATH $PATH:$JMETER_BIN
 
-# install all available plugins except for those that are deprecated
-RUN PluginsManagerCMD.sh install-all-except jpgc-hadoop,jpgc-oauth \
-  && sleep 2 \
-  && PluginsManagerCMD.sh status
+COPY ./launch.sh /
+RUN chmod +x /launch.sh
 
-# copy our entrypoint
-COPY entrypoint.sh /opt/jmeter/
-
-WORKDIR /logs
-
-EXPOSE 1099 50000 51000 4445/udp
-
-# default command in the entrypoint is 'minion'
-ENTRYPOINT ["/opt/jmeter/entrypoint.sh"]
-CMD ["minion"]
+ENTRYPOINT ["/launch.sh"]
+CMD ["-n -t /mnt/jmeter/script.jmx -l /mnt/jmeter/results/reslut-$(date +'%m_%d_%Y-%H_%M_%S_%N').jtl -j /mnt/jmeter/logs/master-log-$(date +'%m_%d_%Y-%H_%M_%S_%N').log"]
