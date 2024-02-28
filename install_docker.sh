@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Update the package list
-sudo yum update -y
+sudo apt update -y
 
 # Install docker
-sudo yum install -y docker
+sudo apt install -y docker
 
 # Start and enable Docker service if not already started
 if ! systemctl is-active --quiet docker; then
